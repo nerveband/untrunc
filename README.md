@@ -65,6 +65,20 @@ make FF_VER=3.3.9
 sudo cp untrunc /usr/local/bin
 ```
 
+#### macOS
+```shell
+# Install dependencies with Homebrew
+brew install ffmpeg yasm
+
+# Get the source code
+git clone https://github.com/anthwlock/untrunc
+cd untrunc
+
+# Build
+export PKG_CONFIG_PATH="/opt/homebrew/lib/pkgconfig"
+CPPFLAGS="-I/opt/homebrew/include" LDFLAGS="-L/opt/homebrew/lib" make
+```
+
 ## Docker container
 
 You can use the included Dockerfile to build and execute the package as a container.\
