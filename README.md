@@ -65,6 +65,15 @@ make FF_VER=3.3.9
 sudo cp untrunc /usr/local/bin
 ```
 
+#### macOS with Homebrew
+
+```
+brew install ffmpeg yasm
+export PKG_CONFIG_PATH="/opt/homebrew/lib/pkgconfig"
+CPPFLAGS="-I/opt/homebrew/include" LDFLAGS="-L/opt/homebrew/lib" make
+```
+
+
 ## Docker container
 
 You can use the included Dockerfile to build and execute the package as a container.\
@@ -75,7 +84,7 @@ The optional argument 'FF_VER' will be passed to `make`.
 docker build -t untrunc .
 docker image prune --filter label=stage=intermediate -f
 
-docker run -v ~/Videos/:/mnt untrunc /mnt/ok.mp4 /mnt/broken.mp4
+docker run --rm -v ~/Videos/:/mnt untrunc /mnt/ok.mp4 /mnt/broken.mp4
 ```
 
 ## Snapcraft

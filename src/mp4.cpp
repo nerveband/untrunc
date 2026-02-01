@@ -449,7 +449,7 @@ void Mp4::saveVideo(const string& filename) {
 		cout << "Info: Found " << pkt_idx_ << " packets ( ";
 		for(const Track& t : tracks_){
 			cout << t.codec_.name_ << ": " << t.getNumSamples() << ' ';
-			if (contains({"avc1", "hvc1"}, t.codec_.name_))
+			if (contains({"avc1", "hvc1", "hev1"}, t.codec_.name_) || t.keyframes_.size())
 				cout << ss(t.codec_.name_, "-keyframes: ", t.keyframes_.size(), " ");
 		}
 		cout << ")\n";
@@ -1085,7 +1085,7 @@ void Mp4::correctChunkIdxSimple(int track_idx) {
 
 	int off_ok = -1;
 	for (uint off=0; off < order_sz; off++) {
-		if (track_order_simple_[next_chunk_idx_+off % order_sz] == track_idx) {
+		if (track_order_simple_[(next_chunk_idx_+off) % order_sz] == track_idx) {
 			if (off_ok < 0) off_ok = off;
 			else {logg(W, "correctChunkIdxSimple(", track_idx, "): next chunk is ambiguous\n"); break;};
 		}
@@ -1682,6 +1682,7 @@ Mp4::Chunk Mp4::getChunkPrediction(off_t offset, bool only_perfect_fit) {
 	if (predictChunkViaOrder(offset, c)) {
 		if (c && chunkStartLooksInvalid(offset, c)) {
 			dbgg("Ignoring predictChunkViaOrder, chunkStartLooksInvalid fails", c);
+			ignored_chunk_order_ = true;
 			return Mp4::Chunk();
 		}
 		return c;
@@ -2022,6 +2023,10 @@ bool Mp4::chkOffset(off_t& offset) {
 		dbgg("chkOffset ", skipped);
 		chkExcludeOverlap(orig_off, skipped);
 		addToExclude(orig_off, skipped);
+	}
+	if (!r) {  // at end
+		pushBackLastChunk();
+		chkUnknownSequenceEnded(offset);
 	}
 	return r;
 }
